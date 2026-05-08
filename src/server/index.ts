@@ -20,6 +20,25 @@ const broadcastTodosChanged = () => {
   }
 };
 
+const getKnownDatabaseErrorMessage = (error: unknown) => {
+  if (typeof error !== "object" || error === null || !("code" in error)) return null;
+
+  switch (error.code) {
+    case "P1000":
+      return "The database rejected the configured username or password.";
+    case "P1001":
+      return "The app cannot reach PostgreSQL. Start the database or update DATABASE_URL.";
+    case "P1003":
+      return "The configured PostgreSQL database does not exist.";
+    case "P2021":
+      return "The Todo table does not exist yet. Run the Prisma migration.";
+    case "P2025":
+      return "Todo not found";
+    default:
+      return null;
+  }
+};
+
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors());
 app.use(express.json());
@@ -151,8 +170,9 @@ app.use((error: unknown, _request: express.Request, response: express.Response, 
     return;
   }
 
-  if (typeof error === "object" && error && "code" in error && error.code === "P2025") {
-    response.status(404).json({ message: "Todo not found" });
+  const databaseMessage = getKnownDatabaseErrorMessage(error);
+  if (databaseMessage) {
+    response.status(databaseMessage === "Todo not found" ? 404 : 503).json({ message: databaseMessage });
     return;
   }
 
