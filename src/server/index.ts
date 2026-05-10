@@ -157,7 +157,7 @@ if (isProduction) {
   const clientPath = path.resolve(__dirname, "../../client");
 
   app.use(express.static(clientPath));
-  app.get("*", (_request, response) => {
+  app.use((_request, response) => {
     response.sendFile(path.join(clientPath, "index.html"));
   });
 }
