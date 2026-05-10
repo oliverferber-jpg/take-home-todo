@@ -154,7 +154,7 @@ app.delete("/api/todos", async (_request, response, next) => {
 if (isProduction) {
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
-  const clientPath = path.resolve(__dirname, "../client");
+  const clientPath = path.resolve(__dirname, "../../client");
 
   app.use(express.static(clientPath));
   app.get("*", (_request, response) => {
